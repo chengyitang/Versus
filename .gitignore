@@ -96,4 +96,7 @@ next-env.d.ts
 .vercel
 
 # Local development
-.local 
+.local
+
+# Package lock
+package-lock.json 
