@@ -36,6 +36,11 @@ def get_db():
         db.close()
 
 # League related APIs
+@app.get("/api/leagues", response_model=List[schemas.LeagueResponse])
+async def get_leagues(db: Session = Depends(get_db)):
+    """Get all leagues"""
+    return crud.get_leagues(db)
+
 @app.post("/api/leagues", response_model=schemas.LeagueResponse)
 async def create_league(league: schemas.LeagueCreate, db: Session = Depends(get_db)):
     """Create a new league"""
@@ -61,6 +66,21 @@ async def update_league(
         raise HTTPException(status_code=404, detail="League not found")
     
     return crud.update_league(db=db, league_id=league_id, league_update=league_update)
+
+@app.delete("/api/leagues/{league_id}", response_model=schemas.APIResponse)
+async def delete_league(league_id: str, db: Session = Depends(get_db)):
+    """Delete a league and all its related data"""
+    success = crud.delete_league(db, league_id)
+    if not success:
+        raise HTTPException(
+            status_code=404,
+            detail="League not found or could not be deleted"
+        )
+    
+    return schemas.APIResponse(
+        success=True,
+        message="League deleted successfully"
+    )
 
 # Match related APIs
 @app.post("/api/leagues/{league_id}/matches", response_model=schemas.MatchResponse)
@@ -115,10 +135,19 @@ async def delete_match(
         message="Match deleted successfully" if success else "Failed to delete match"
     )
 
-# Ranking related APIs
+# Player Stats and Rankings APIs
+@app.get("/api/leagues/{league_id}/player-stats", response_model=List[schemas.PlayerStats])
+async def get_player_stats(league_id: str, db: Session = Depends(get_db)):
+    """Get all players' statistics"""
+    league = crud.get_league(db, league_id=league_id)
+    if league is None:
+        raise HTTPException(status_code=404, detail="League not found")
+    
+    return crud.get_rankings(db, league_id=league_id)  # 重用現有的 crud 函數
+
 @app.get("/api/leagues/{league_id}/rankings", response_model=List[schemas.PlayerStats])
 async def get_rankings(league_id: str, db: Session = Depends(get_db)):
-    """Get rankings"""
+    """Get rankings ordered by win rate"""
     league = crud.get_league(db, league_id=league_id)
     if league is None:
         raise HTTPException(status_code=404, detail="League not found")
@@ -161,6 +190,53 @@ async def get_recent_matches(
 async def get_league_stats(league_id: str, db: Session = Depends(get_db)):
     """Get league stats"""
     return crud.get_league_stats(db, league_id=league_id)
+
+@app.post("/api/leagues/{league_id}/players", response_model=schemas.Player)
+def create_player(league_id: str, player: schemas.PlayerCreate, db: Session = Depends(get_db)):
+    """Create a new player in the league"""
+    print("Received request to create player:")
+    print(f"League ID: {league_id}")
+    print(f"Player data: {player.dict()}")
+    
+    # Check if league exists
+    db_league = crud.get_league(db, league_id)
+    if not db_league:
+        raise HTTPException(status_code=404, detail="League not found")
+    
+    # Check if player with same name already exists in the league
+    matches = db.query(models.Match)\
+        .filter(models.Match.league_id == league_id)\
+        .filter((models.Match.player1 == player.name) | (models.Match.player2 == player.name))\
+        .first()
+    
+    if matches:
+        raise HTTPException(status_code=400, detail="Player already exists in this league")
+    
+    return crud.create_player(db, league_id, player.name)
+
+@app.delete("/api/leagues/{league_id}/players/{player_name}", response_model=schemas.APIResponse)
+def delete_player(
+    league_id: str,
+    player_name: str,
+    db: Session = Depends(get_db)
+):
+    """Delete a player from the league"""
+    # Check if league exists
+    db_league = crud.get_league(db, league_id)
+    if not db_league:
+        raise HTTPException(status_code=404, detail="League not found")
+    
+    success = crud.delete_player(db, league_id, player_name)
+    if not success:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete player because they have match records. Delete all matches first."
+        )
+    
+    return schemas.APIResponse(
+        success=True,
+        message="Player deleted successfully"
+    )
 
 if __name__ == "__main__":
     import uvicorn

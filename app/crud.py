@@ -5,6 +5,9 @@ from typing import List, Optional, Dict
 from . import models, schemas
 
 # League operations
+def get_leagues(db: Session) -> List[models.League]:
+    return db.query(models.League).order_by(models.League.created_at.desc()).all()
+
 def create_league(db: Session, league: schemas.LeagueCreate) -> models.League:
     db_league = models.League(
         id=str(uuid.uuid4()),
@@ -31,6 +34,29 @@ def update_league(
         db.commit()
         db.refresh(db_league)
     return db_league
+
+def delete_league(db: Session, league_id: str) -> bool:
+    """Delete a league and all its related data"""
+    # First check if league exists
+    db_league = get_league(db, league_id)
+    if not db_league:
+        return False
+    
+    try:
+        # Delete all matches in the league
+        db.query(models.Match).filter(models.Match.league_id == league_id).delete()
+        
+        # Delete all players in the league
+        db.query(models.Player).filter(models.Player.league_id == league_id).delete()
+        
+        # Delete the league itself
+        db.query(models.League).filter(models.League.id == league_id).delete()
+        
+        db.commit()
+        return True
+    except Exception:
+        db.rollback()
+        return False
 
 # Match operations
 def create_match(
@@ -94,6 +120,7 @@ def delete_match(db: Session, match_id: str) -> bool:
 
 # Ranking and statistics operations
 def get_rankings(db: Session, league_id: str) -> List[schemas.PlayerStats]:
+    # First, get all players from matches
     matches = db.query(models.Match)\
         .filter(models.Match.league_id == league_id)\
         .order_by(models.Match.created_at.asc())\
@@ -102,6 +129,7 @@ def get_rankings(db: Session, league_id: str) -> List[schemas.PlayerStats]:
     player_stats: Dict[str, schemas.PlayerStats] = {}
     player_streaks: Dict[str, List[bool]] = {}  # Store win/loss sequence for each player
     
+    # Initialize stats for all players from matches
     for match in matches:
         # Process player1
         if match.player1 not in player_stats:
@@ -137,39 +165,61 @@ def get_rankings(db: Session, league_id: str) -> List[schemas.PlayerStats]:
         else:
             stats2.matches_lost += 1
     
+    # Get all players from the players table
+    players = db.query(models.Player)\
+        .filter(models.Player.league_id == league_id)\
+        .all()
+    
+    # Add players without matches
+    for player in players:
+        if player.name not in player_stats:
+            player_stats[player.name] = schemas.PlayerStats(
+                player_name=player.name,
+                matches_played=0,
+                matches_won=0,
+                matches_lost=0,
+                total_score=0,
+                highest_score=0,
+                average_score=0,
+                win_rate=0,
+                current_streak=0,
+                win_streak=0
+            )
+    
     # Calculate statistics for each player
     for player_name, stats in player_stats.items():
-        # Calculate win rate and average score
-        stats.win_rate = round(stats.matches_won / stats.matches_played * 100, 2) if stats.matches_played > 0 else 0.0
-        stats.average_score = round(stats.total_score / stats.matches_played, 2) if stats.matches_played > 0 else 0.0
-        
-        # Calculate streaks
-        streak_list = player_streaks[player_name]
-        if streak_list:
-            # Calculate current streak
-            current_streak = 1
-            for i in range(len(streak_list)-1, 0, -1):
-                if streak_list[i] == streak_list[i-1]:
-                    current_streak += 1
-                else:
-                    break
-            stats.current_streak = current_streak if streak_list[-1] else -current_streak
+        if stats.matches_played > 0:
+            # Calculate win rate and average score
+            stats.win_rate = round(stats.matches_won / stats.matches_played * 100, 2)
+            stats.average_score = round(stats.total_score / stats.matches_played, 2)
             
-            # Calculate longest win streak
-            max_streak = 0
-            current = 0
-            for won in streak_list:
-                if won:
-                    current += 1
-                    max_streak = max(max_streak, current)
-                else:
-                    current = 0
-            stats.win_streak = max_streak
+            # Calculate streaks
+            streak_list = player_streaks[player_name]
+            if streak_list:
+                # Calculate current streak
+                current_streak = 1
+                for i in range(len(streak_list)-1, 0, -1):
+                    if streak_list[i] == streak_list[i-1]:
+                        current_streak += 1
+                    else:
+                        break
+                stats.current_streak = current_streak if streak_list[-1] else -current_streak
+                
+                # Calculate longest win streak
+                max_streak = 0
+                current = 0
+                for won in streak_list:
+                    if won:
+                        current += 1
+                        max_streak = max(max_streak, current)
+                    else:
+                        current = 0
+                stats.win_streak = max_streak
     
     # Sort by win rate and return as list
     return sorted(
         player_stats.values(),
-        key=lambda x: (-x.win_rate, -x.matches_won, -x.average_score, -x.highest_score)
+        key=lambda x: (-x.win_rate, -x.matches_won, -x.average_score, -x.highest_score, x.player_name)
     )
 
 def get_player_stats(
@@ -291,29 +341,63 @@ def get_league_stats(db: Session, league_id: str) -> Dict:
         .filter(models.Match.league_id == league_id)\
         .all()
     
-    total_matches = len(matches)
-    if total_matches == 0:
-        return {
-            "total_matches": 0,
-            "total_players": 0,
-            "average_score": 0,
-            "highest_score": 0
-        }
-    
-    players = set()
+    # Get all players from matches
+    players_from_matches = set()
     total_score = 0
     highest_score = 0
     
     for match in matches:
-        players.add(match.player1)
-        players.add(match.player2)
+        players_from_matches.add(match.player1)
+        players_from_matches.add(match.player2)
         match_total = match.player1_score + match.player2_score
         total_score += match_total
         highest_score = max(highest_score, match.player1_score, match.player2_score)
     
+    # Get all players from the players table
+    players_from_db = db.query(models.Player)\
+        .filter(models.Player.league_id == league_id)\
+        .all()
+    
+    # Add players who haven't played any matches
+    all_players = players_from_matches.union({player.name for player in players_from_db})
+    
     return {
-        "total_matches": total_matches,
-        "total_players": len(players),
-        "average_score": total_score / (total_matches * 2),
+        "total_matches": len(matches),
+        "total_players": len(all_players),
+        "average_score": total_score / (len(matches) * 2) if matches else 0,
         "highest_score": highest_score
-    } 
+    }
+
+def get_players_by_league(db: Session, league_id: str) -> List[models.Player]:
+    return db.query(models.Player).filter(models.Player.league_id == league_id).all()
+
+def create_player(db: Session, league_id: str, name: str) -> models.Player:
+    db_player = models.Player(
+        id=str(uuid.uuid4()),
+        name=name,
+        league_id=league_id
+    )
+    db.add(db_player)
+    db.commit()
+    db.refresh(db_player)
+    return db_player
+
+def delete_player(db: Session, league_id: str, player_name: str) -> bool:
+    try:
+        # Delete all matches involving this player
+        db.query(models.Match)\
+            .filter(models.Match.league_id == league_id)\
+            .filter((models.Match.player1 == player_name) | (models.Match.player2 == player_name))\
+            .delete()
+        
+        # Delete the player
+        result = db.query(models.Player)\
+            .filter(models.Player.league_id == league_id)\
+            .filter(models.Player.name == player_name)\
+            .delete()
+        
+        db.commit()
+        return True
+    except Exception:
+        db.rollback()
+        return False 

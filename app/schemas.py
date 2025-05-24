@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List
 from datetime import datetime
 
 # League schemas
@@ -18,8 +18,9 @@ class LeagueResponse(LeagueBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True, json_encoders={
+        datetime: lambda dt: dt.isoformat() if dt else None
+    })
 
 # Match schemas
 class MatchBase(BaseModel):
@@ -41,8 +42,9 @@ class MatchResponse(MatchBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True, json_encoders={
+        datetime: lambda dt: dt.isoformat() if dt else None
+    })
 
 # Player statistics schema
 class PlayerStats(BaseModel):
@@ -57,10 +59,23 @@ class PlayerStats(BaseModel):
     win_streak: int = 0
     current_streak: int = 0
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # API Response schema
 class APIResponse(BaseModel):
     success: bool
-    message: str 
+    message: str
+
+class PlayerCreate(BaseModel):
+    name: str
+
+class Player(BaseModel):
+    id: str
+    name: str
+    league_id: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True, json_encoders={
+        datetime: lambda dt: dt.isoformat() if dt else None
+    }) 
