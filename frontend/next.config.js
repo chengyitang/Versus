@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   async rewrites() {
     return [
@@ -11,10 +13,13 @@ const nextConfig = {
       },
     ];
   },
+  experimental: {
+    esmExternals: true
+  },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': require('path').resolve(__dirname, 'src'),
+      '@': path.join(__dirname, 'src')
     };
     return config;
   },
