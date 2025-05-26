@@ -10,7 +10,7 @@ from . import models, schemas, crud
 from .database import SessionLocal, engine, settings
 
 # Create database tables
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

@@ -36,5 +36,5 @@ COPY . .
 # 暴露端口（根據您的應用設置）
 EXPOSE 8000
 
-# 運行 Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app.main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker"]
+# 運行 Alembic migration 並啟動 Gunicorn
+CMD ["sh", "-c", "alembic upgrade head && gunicorn --bind 0.0.0.0:8000 app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker"]
