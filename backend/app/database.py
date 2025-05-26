@@ -2,7 +2,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic_settings import BaseSettings
-from typing import List
 
 class Settings(BaseSettings):
     PROJECT_NAME: str
@@ -12,11 +11,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str
     POSTGRES_PORT: str
     POSTGRES_DB: str
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
-
-    @property
-    def CORS_ORIGINS(self) -> List[str]:
-        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
 
     @property
     def SQLALCHEMY_DATABASE_URL(self) -> str:
