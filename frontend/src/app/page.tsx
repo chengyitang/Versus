@@ -41,6 +41,10 @@ export default function Home() {
     <div className="space-y-6">
       <div className="border-b border-gray-200 pb-5">
         <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-gray-900">Versus</h1>
+        <p className="mt-3 text-lg sm:text-xl leading-relaxed text-gray-800">
+          Versus is a competition management platform designed specifically for one-on-one (1:1) games and sports. Create leagues/competitions, record head-to-head matches, and track every player's win rates and performance history. Perfect for table games, sports, and any activity where you want to analyze and celebrate individual competition!
+        </p>
+        <br />
         <p className="mt-2 text-sm sm:text-base text-gray-600">
           Select a league to view recent matches and statistics, or create a new one
         </p>
