@@ -18,7 +18,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           variant === 'default'
             ? 'bg-gray-900 text-gray-50 shadow hover:bg-gray-900/90'
             : 'border border-gray-200 bg-white shadow-sm hover:bg-gray-100 hover:text-gray-900',
-          'px-4 py-2',
+          'px-3 py-2 text-sm sm:px-4 sm:py-2',
           className
         )}
         ref={ref}

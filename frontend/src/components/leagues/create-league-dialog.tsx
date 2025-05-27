@@ -45,14 +45,14 @@ export function CreateLeagueDialog({ isOpen, onClose }: CreateLeagueDialogProps)
       <div className="fixed inset-0 bg-gray-500/75" aria-hidden="true" />
       
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="mx-auto w-full max-w-md transform overflow-hidden rounded-xl bg-white p-6 shadow-xl transition-all">
-          <Dialog.Title className="text-xl font-semibold leading-6 text-gray-900">
+        <Dialog.Panel className="mx-auto w-full max-w-xs sm:max-w-md transform overflow-hidden rounded-xl bg-white p-3 sm:p-6 shadow-xl transition-all">
+          <Dialog.Title className="text-lg sm:text-xl font-semibold leading-6 text-gray-900">
             Create New League
           </Dialog.Title>
           
-          <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+          <form onSubmit={handleSubmit} className="mt-4 sm:mt-6 space-y-4 sm:space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-gray-900">
                 League Name
               </label>
               <input
@@ -61,7 +61,7 @@ export function CreateLeagueDialog({ isOpen, onClose }: CreateLeagueDialogProps)
                 name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-2 block w-full rounded-lg border border-gray-400 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border border-gray-400 px-3 py-2 text-xs sm:text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter league name"
                 required
                 disabled={isSubmitting}
@@ -69,7 +69,7 @@ export function CreateLeagueDialog({ isOpen, onClose }: CreateLeagueDialogProps)
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="description" className="block text-xs sm:text-sm font-medium text-gray-900">
                 Description
               </label>
               <textarea
@@ -78,7 +78,7 @@ export function CreateLeagueDialog({ isOpen, onClose }: CreateLeagueDialogProps)
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="mt-2 block w-full rounded-lg border border-gray-400 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border border-gray-400 px-3 py-2 text-xs sm:text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 placeholder="Optional: Add a description for your league"
                 disabled={isSubmitting}
               />

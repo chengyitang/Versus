@@ -43,28 +43,28 @@ export default function LeaguePage() {
         )}
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-6">
-          <dt className="truncate text-sm font-medium text-gray-500">Total Matches</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
+      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-3 sm:p-6">
+          <dt className="truncate text-xs sm:text-sm font-medium text-gray-500">Total Matches</dt>
+          <dd className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">
             {stats?.total_matches || 0}
           </dd>
         </div>
-        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-6">
-          <dt className="truncate text-sm font-medium text-gray-500">Total Players</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
+        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-3 sm:p-6">
+          <dt className="truncate text-xs sm:text-sm font-medium text-gray-500">Total Players</dt>
+          <dd className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">
             {stats?.total_players || 0}
           </dd>
         </div>
-        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-6">
-          <dt className="truncate text-sm font-medium text-gray-500">Average Score</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
+        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-3 sm:p-6">
+          <dt className="truncate text-xs sm:text-sm font-medium text-gray-500">Average Score</dt>
+          <dd className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">
             {stats?.average_score?.toFixed(1) || '0.0'}
           </dd>
         </div>
-        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-6">
-          <dt className="truncate text-sm font-medium text-gray-500">Highest Score</dt>
-          <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
+        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-3 sm:p-6">
+          <dt className="truncate text-xs sm:text-sm font-medium text-gray-500">Highest Score</dt>
+          <dd className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">
             {stats?.highest_score || 0}
           </dd>
         </div>

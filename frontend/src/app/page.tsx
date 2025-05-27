@@ -40,36 +40,36 @@ export default function Home() {
   return (
     <div className="space-y-6">
       <div className="border-b border-gray-200 pb-5">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Versus</h1>
-        <p className="mt-2 text-base text-gray-600">
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-gray-900">Versus</h1>
+        <p className="mt-2 text-sm sm:text-base text-gray-600">
           Select a league to view recent matches and statistics, or create a new one
         </p>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-xs sm:text-sm text-gray-500">
           {leagues.length} league(s) found
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {leagues.map((league) => (
           <Link
             key={league.id}
             href={`/leagues/${league.id}`}
-            className="group relative block overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-6 hover:border-gray-300"
+            className="group relative block overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-3 sm:p-6 hover:border-gray-300"
           >
-            <h2 className="text-lg font-medium text-gray-900">{league.name}</h2>
+            <h2 className="text-base sm:text-lg font-medium text-gray-900">{league.name}</h2>
             {league.description && (
-              <p className="mt-1 text-sm text-gray-500">{league.description}</p>
+              <p className="mt-1 text-xs sm:text-sm text-gray-500">{league.description}</p>
             )}
           </Link>
         ))}
 
         <button
           onClick={() => setIsCreateDialogOpen(true)}
-          className="relative flex items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white p-6 text-center hover:border-gray-400"
+          className="relative flex items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white p-3 sm:p-6 text-center hover:border-gray-400"
         >
           <div>
             <PlusIcon className="mx-auto h-8 w-8 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
+            <h3 className="mt-2 text-xs sm:text-sm font-medium text-gray-900">
               Create New League
             </h3>
           </div>
