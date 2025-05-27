@@ -15,19 +15,19 @@ Versus is a competition management platform designed specifically for one-on-one
 
 **Home**
 
-![Home](../img/home.png)
+![Home](./img/home.png)
 
 **Matches**
 
-![Matches](../img/matches.png)
+![Matches](./img/matches.png)
 
 **Player Stats**
 
-![Player Stats](../img/player-stats.png)
+![Player Stats](./img/player-stats.png)
 
 **Rankings**
 
-![Rankings](../img/rankings.png)
+![Rankings](./img/rankings.png)
 
 ## Tech Stack
 - Next.js (React, TypeScript)
